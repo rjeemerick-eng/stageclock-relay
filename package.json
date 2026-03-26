@@ -1,81 +1,16 @@
 {
-  "name": "stageclock",
+  "name": "stageclock-relay",
   "version": "1.0.0",
-  "description": "Production Clock System for Live Events",
-  "main": "main.js",
-  "author": "StageClock",
-  "license": "UNLICENSED",
-  "private": true,
+  "description": "StageClock multisite WebSocket relay hub",
+  "main": "server.js",
   "scripts": {
-    "start": "electron .",
-    "build": "echo no build step",
-    "build:universal": "electron-builder --mac --universal",
-    "build:x64": "electron-builder --mac --x64"
+    "start": "node server.js",
+    "build": "echo no build step"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "dependencies": {
-    "ws": "^8.0.0"
-  },
-  "devDependencies": {
-    "electron": "^34.0.0",
-    "electron-builder": "^25.0.0"
-  },
-  "build": {
-    "appId": "app.stageclock.mac",
-    "productName": "StageClock",
-    "copyright": "Copyright © 2026 StageClock",
-    "mac": {
-      "category": "public.app-category.productivity",
-      "icon": "assets/icon.icns",
-      "target": [
-        {
-          "target": "dmg",
-          "arch": [
-            "arm64"
-          ]
-        }
-      ],
-      "minimumSystemVersion": "12.0",
-      "darkModeSupport": true
-    },
-    "dmg": {
-      "title": "StageClock ${version}",
-      "icon": "assets/icon.icns",
-      "background": null,
-      "contents": [
-        {
-          "x": 180,
-          "y": 170,
-          "type": "file"
-        },
-        {
-          "x": 480,
-          "y": 170,
-          "type": "link",
-          "path": "/Applications"
-        }
-      ],
-      "window": {
-        "width": 660,
-        "height": 400
-      }
-    },
-    "extraResources": [
-      {
-        "from": "stageclock-ndi.py",
-        "to": "stageclock-ndi.py"
-      }
-    ],
-    "files": [
-      "src/**/*",
-      "main.js",
-      "preload.js",
-      "stageclock-ndi.py",
-      "assets/**/*",
-      "node_modules/ws/**/*"
-    ],
-    "directories": {
-      "output": "dist"
-    },
-    "artifactName": "StageClock-${version}-${arch}.${ext}"
+    "ws": "^8.16.0"
   }
 }
