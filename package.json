@@ -8,7 +8,7 @@
   "private": true,
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --mac --arm64",
+    "build": "echo no build step",
     "build:universal": "electron-builder --mac --universal",
     "build:x64": "electron-builder --mac --x64"
   },
@@ -29,7 +29,9 @@
       "target": [
         {
           "target": "dmg",
-          "arch": ["arm64"]
+          "arch": [
+            "arm64"
+          ]
         }
       ],
       "minimumSystemVersion": "12.0",
@@ -40,8 +42,17 @@
       "icon": "assets/icon.icns",
       "background": null,
       "contents": [
-        { "x": 180, "y": 170, "type": "file" },
-        { "x": 480, "y": 170, "type": "link", "path": "/Applications" }
+        {
+          "x": 180,
+          "y": 170,
+          "type": "file"
+        },
+        {
+          "x": 480,
+          "y": 170,
+          "type": "link",
+          "path": "/Applications"
+        }
       ],
       "window": {
         "width": 660,
