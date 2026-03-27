@@ -40,12 +40,26 @@ wss.on('connection', (ws, req) => {
       if (!orgId || !siteName) { send(ws,{type:'ERROR',code:'MISSING_FIELDS'}); ws.close(); return; }
       if (!await validateLicense(licenseKey, orgId)) { send(ws,{type:'ERROR',code:'INVALID_LICENSE'}); ws.close(); return; }
       const org = getOrg(orgId);
+
+      // Block duplicate primary
+      if (isPrimary) {
+        const existingPrimary = [...org.values()].find(s => s.isPrimary && s.siteName !== siteName);
+        if (existingPrimary) {
+          send(ws, { type:'PRIMARY_CONFLICT', existingSite: existingPrimary.siteName });
+          // Allow them to join but as non-primary
+          // (client will handle unchecking the box)
+        }
+      }
+
       if (org.has(siteName)) { const ex=org.get(siteName); if(ex.ws!==ws&&ex.ws.readyState===WebSocket.OPEN){send(ex.ws,{type:'ERROR',code:'REPLACED'});ex.ws.close();} org.delete(siteName); }
-      site = { orgId, siteName, isPrimary:!!isPrimary, licenseKey, ws, joinedAt:Date.now() };
+      // Force isPrimary=false if conflict detected
+      const existingPrimary2 = isPrimary ? [...org.values()].find(s => s.isPrimary && s.siteName !== siteName) : null;
+      const resolvedPrimary = isPrimary && !existingPrimary2;
+      site = { orgId, siteName, isPrimary: resolvedPrimary, licenseKey, ws, joinedAt:Date.now() };
       org.set(siteName, site);
-      console.log('['+orgId+'] '+siteName+' joined ('+ip+')');
+      console.log('['+orgId+'] '+siteName+' joined ('+ip+') primary='+resolvedPrimary);
       send(ws, { type:'WELCOME', siteName, orgId, roster:rosterFor(orgId,siteName) });
-      broadcast(orgId, { type:'SITE_JOINED', siteName, isPrimary:!!isPrimary, roster:rosterFor(orgId) }, siteName);
+      broadcast(orgId, { type:'SITE_JOINED', siteName, isPrimary:resolvedPrimary, roster:rosterFor(orgId) }, siteName);
       return;
     }
 
@@ -53,6 +67,7 @@ wss.on('connection', (ws, req) => {
 
     if (msg.type==='SITE_STATE') { broadcast(site.orgId,{type:'SITE_STATE',siteName:site.siteName,isPrimary:site.isPrimary,state:msg.state,ts:Date.now()},site.siteName); return; }
     if (msg.type==='BROADCAST_CUE') { broadcast(site.orgId,{type:'BROADCAST_CUE',fromSite:site.siteName,cue:msg.cue,ts:Date.now()},site.siteName); return; }
+    if (msg.type==='ADD_TIME') { broadcast(site.orgId,{type:'ADD_TIME',fromSite:site.siteName,seconds:msg.seconds,ts:Date.now()},site.siteName); return; }
     if (msg.type==='OP_MSG') { broadcast(site.orgId,{type:'OP_MSG',fromSite:site.siteName,text:msg.text,ts:Date.now()},site.siteName); return; }
     if (msg.type==='PING') { send(ws,{type:'PONG',ts:Date.now()}); return; }
   });
