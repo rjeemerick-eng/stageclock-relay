@@ -68,7 +68,7 @@ wss.on('connection', (ws, req) => {
     if (msg.type==='SITE_STATE') { broadcast(site.orgId,{type:'SITE_STATE',siteName:site.siteName,isPrimary:site.isPrimary,state:msg.state,ts:Date.now()},site.siteName); return; }
     if (msg.type==='BROADCAST_CUE') { broadcast(site.orgId,{type:'BROADCAST_CUE',fromSite:site.siteName,cue:msg.cue,ts:Date.now()},site.siteName); return; }
     if (msg.type==='ADD_TIME') { broadcast(site.orgId,{type:'ADD_TIME',fromSite:site.siteName,seconds:msg.seconds,ts:Date.now()},site.siteName); return; }
-    if (msg.type==='OP_MSG') { broadcast(site.orgId,{type:'OP_MSG',fromSite:site.siteName,text:msg.text,isPrimary:site.isPrimary,flash:!!msg.flash,ts:Date.now()},site.siteName); return; }
+    if (msg.type==='OP_MSG') { broadcast(site.orgId,{type:'OP_MSG',fromSite:site.siteName,text:msg.text,isPrimary:!!(msg.isPrimary||site.isPrimary),flash:!!msg.flash,ts:Date.now()},site.siteName); return; }
     if (msg.type==='OP_ALERT') { broadcast(site.orgId,{type:'OP_ALERT',fromSite:site.siteName,text:msg.text,ts:Date.now()}); return; } // alert goes to ALL including sender
     if (msg.type==='PING') { send(ws,{type:'PONG',ts:Date.now()}); return; }
   });
